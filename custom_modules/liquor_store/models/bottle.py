@@ -27,18 +27,18 @@ class Bottle(models.Model):
         bottle.brand.quantity += 1
         return bottle
     
-    # @api.depends('status')
-    # def _compute_selling_date(self):
-    #     for bottle in self:
-    #         if bottle.status == 'sold':
-    #             # Find the related sales order line and get its sales order's date
-    #             sale_order_line = self.env['liquor_store.sales.order.line'].search([('bottle_id', '=', bottle.id)], limit=1)
-    #             if sale_order_line:
-    #                 bottle.selling_date = sale_order_line.order_id.date
-    #             else:
-    #                 bottle.selling_date = False
-    #         else:
-    #             bottle.selling_date = False
+    @api.depends('status')
+    def _compute_selling_date(self):
+        for bottle in self:
+            if bottle.status == 'sold':
+                # Find the related sales order line and get its sales order's date
+                sale_order_line = self.env['liquor_store.sales.order.line'].search([('bottle_id', '=', bottle.id)], limit=1)
+                if sale_order_line:
+                    bottle.selling_date = sale_order_line.order_id.date
+                else:
+                    bottle.selling_date = False
+            else:
+                bottle.selling_date = False
     
     @api.depends('size')
     def _compute_remaining_capacity(self):

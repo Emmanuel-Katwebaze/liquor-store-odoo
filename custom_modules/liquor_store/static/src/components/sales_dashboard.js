@@ -14,9 +14,9 @@ export class OwlSalesDashboard extends Component {
     // top products
     async getTopProducts() {
         let domain = []; // Changed state values to match your custom model
-        if (this.state.period > 0){
-            domain.push(['bottle_ids.selling_date', '>=', this.state.current_date]); // Changed field name to match your custom model
-        }
+        // if (this.state.period > 0){
+        //     domain.push(['selling_date', '>', this.state.current_date]); // Changed field name to match your custom model
+        // }
     
         // Fetch all brands
         const brands = await this.orm.searchRead("liquor_store.brand", domain, ['name']);
