@@ -40,7 +40,7 @@ class SalesOrder(models.Model):
 
     def action_validate(self):
         self.write({'state': 'done'})
-        # self.order_line_ids.mapped('bottle_id').write({'status': 'sold'})
+        self.order_line_ids.mapped('bottle_id').write({'status': 'sold'})
         sold_bottles = self.order_line_ids.filtered(lambda line: line.bottle_id.status == 'sold').mapped('bottle_id')
         sold_bottles.write({'selling_date': self.date})  # Update selling date of sold bottles
         
