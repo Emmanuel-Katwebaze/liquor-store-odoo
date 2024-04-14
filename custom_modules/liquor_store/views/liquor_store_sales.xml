@@ -16,6 +16,7 @@
                     <field name="state" widget="statusbar" statusbar_visible="quotation,quotation_sent,sales_order,done"/>
                 </header>
                 <sheet>
+                    <widget name="web_ribbon" title="Done" bg_color="bg-success" invisible="state in ('quotation', 'sales_order', 'quotation_sent')" />
                     <group>
                         <field name="name_seq" />
                         <field name="customer_id" />

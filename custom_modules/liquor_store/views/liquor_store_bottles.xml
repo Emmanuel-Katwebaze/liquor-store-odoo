@@ -71,6 +71,7 @@
                         statusbar_visible="available,sold" />
                 </header>
                 <sheet>
+                    <widget name="web_ribbon" title="Sold" bg_color="bg-success" invisible="status == 'available'" />
                     <group>
                         <field name="brand" readonly="status == 'sold'"/>
                         <field name="barcode_number" readonly="status == 'sold'"/>

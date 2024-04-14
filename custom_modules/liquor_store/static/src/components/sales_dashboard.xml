@@ -23,10 +23,10 @@
                         </div>
                     </div>
                     <div class="row">
-                        <KpiCard onClick.bind="viewQuotations" name="'Quotations'" value="state.quotations.value" />
-                        <KpiCard onClick.bind="viewOrders" name="'Orders'" value="state.orders.value" />
-                        <KpiCard onClick.bind="viewRevenues" name="'Revenues'" value="state.orders.revenue" />
-                        <KpiCard onClick.bind="viewRevenues" name="'Average Order'" value="state.orders.average" />
+                        <KpiCard name="'Quotations'" value="state.quotations.value" />
+                        <KpiCard name="'Orders'" value="state.orders.value" />
+                        <KpiCard name="'Revenues'" value="state.orders.revenue" />
+                        <KpiCard name="'Average Revenue'" value="state.orders.average" />
                         <!-- <KpiCard onClick.bind="viewQuotations" name="'Quotations'" value="state.quotations.value" percentage="state.quotations.percentage"/>
                         <KpiCard onClick.bind="viewOrders" name="'Orders'" value="state.orders.value" percentage="state.orders.percentage"/>
                         <KpiCard onClick.bind="viewRevenues" name="'Revenues'" value="state.orders.revenue" percentage="state.orders.revenue_percentage"/>
@@ -55,6 +55,19 @@
                                 <ChartRenderer type="'pie'" title="'Top Sales People Report'" config="state.topSalesPeople"/>
                             </div>
                         </div> -->
+                    </div>
+                    <div class="row">                        
+                        <div class="col m-0 p-0">
+                            <div class="shadow-sm border m-2 p-4 bg-white">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <h3 class="text-primary fw-bold">Total Profit Per Brand</h3>
+                                    <div class="px-3 py-1 bg-primary cursor-pointer">
+                                        <span class="fa fa-arrow-right text-white"/>
+                                    </div>
+                                </div>
+                                <ChartRenderer type="'bar'" title="'Total Profit Per Brand'" config="state.totalProfitPerBrand"/>
+                            </div>
+                        </div>                       
                     </div>
                 </div>
                 <div class="col-lg-5">

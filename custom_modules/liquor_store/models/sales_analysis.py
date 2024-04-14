@@ -8,6 +8,9 @@ class SalesAnalysisReport(models.Model):
     brand_id = fields.Many2one('liquor_store.brand', string='Brand', readonly=True)
     total_sales_amount = fields.Float(string='Total Sales Amount', readonly=True)
     quantity_sold = fields.Integer(string='Quantity Sold', readonly=True)
+    total_profit = fields.Float(string='Total Profit', readonly=True)    
+    selling_date = fields.Date('Selling Date', readonly=True)
+
 
     # Add id field explicitly to avoid the UndefinedColumn error
     id = fields.Integer(string='ID', readonly=True)
@@ -20,8 +23,10 @@ class SalesAnalysisReport(models.Model):
                     ROW_NUMBER() OVER () as id,
                     b.id AS brand_id,
                     b.name AS brand_name,
+                    sol.selling_date,
                     SUM(sol.subtotal) AS total_sales_amount,
-                    SUM(sol.quantity) AS quantity_sold
+                    SUM(sol.quantity) AS quantity_sold,
+                    SUM((sol.quantity * (btl.selling_price - btl.purchase_cost))) AS total_profit
                 FROM
                     liquor_store_sales_order_line sol
                 JOIN
@@ -33,9 +38,11 @@ class SalesAnalysisReport(models.Model):
                 WHERE
                     so.state = 'done'
                 GROUP BY
-                    b.id, b.name
+                    b.id, b.name, sol.selling_date
             )
         """ % (self._table,))
+
+
 
     # Method to get the most selling brand
     def get_most_selling_brand(self, start_date=None, end_date=None):

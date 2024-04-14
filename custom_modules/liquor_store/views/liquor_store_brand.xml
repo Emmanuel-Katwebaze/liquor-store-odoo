@@ -11,6 +11,7 @@
                 <field name="description" />
                 <field name="quantity" />
                 <field name="sold_bottle_count" />
+                <field name="total_profit" />
             </tree>
         </field>
     </record>

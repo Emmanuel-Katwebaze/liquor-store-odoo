@@ -20,6 +20,14 @@ class SalesOrder(models.Model):
     total_amount = fields.Float(string='Total Sale Amount', compute='_compute_total_amount', store=True)
     state = fields.Selection(STATE_SELECTION, string='Status', default='quotation', readonly=True)
     date = fields.Date('Date Sold', default=fields.Date.today())
+    
+    def unlink(self):
+        for order in self:
+            if order.state == 'done':
+                raise exceptions.UserError("You cannot delete a sales order that is in the 'Done' state.")
+            if order.order_line_ids:
+                raise exceptions.UserError("You cannot delete a sales order with associated sales order lines.")
+        return super(SalesOrder, self).unlink()
 
     @api.depends('order_line_ids.subtotal')
     def _compute_total_amount(self):
@@ -57,6 +65,7 @@ class SalesOrder(models.Model):
         else:
             raise exceptions.UserError("Report action not found. Please make sure the report action exists.")
 
+
 class SalesOrderLine(models.Model):
     _name = 'liquor_store.sales.order.line'
     _description = 'Sales Order Line'
@@ -66,6 +75,8 @@ class SalesOrderLine(models.Model):
     quantity = fields.Integer(string='Quantity', default=1)
     unit_price = fields.Float(string='Unit Price', compute='_compute_unit_price', store=True)
     subtotal = fields.Float(string='Subtotal', compute='_compute_subtotal', store=True)
+    selling_date = fields.Date(related='order_id.date', string='Selling Date', store=True)
+
 
     @api.depends('quantity', 'unit_price')
     def _compute_subtotal(self):

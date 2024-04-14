@@ -9,6 +9,15 @@ class Brand(models.Model):
     quantity = fields.Integer('Quantity', compute='_compute_quantity')
     bottle_ids = fields.One2many('liquor_store.bottle', 'brand', string='Bottles')
     sold_bottle_count = fields.Integer('Sold Bottle Count', compute='_compute_sold_bottle_count')
+    total_profit = fields.Float('Total Profit', compute='_compute_total_profit')
+
+    @api.depends('bottle_ids.purchase_cost', 'bottle_ids.selling_price', 'bottle_ids.status')
+    def _compute_total_profit(self):
+        for brand in self:
+            total_profit = 0.0
+            for bottle in brand.bottle_ids.filtered(lambda b: b.status == 'sold'):
+                total_profit += bottle.selling_price - bottle.purchase_cost
+            brand.total_profit = total_profit
 
     @api.depends('bottle_ids.status')
     def _compute_quantity(self):

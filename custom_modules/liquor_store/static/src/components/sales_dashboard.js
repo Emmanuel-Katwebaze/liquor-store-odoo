@@ -52,10 +52,7 @@ export class OwlSalesDashboard extends Component {
         };
     
         this.state.topProducts = topProducts;
-    }
-    
-     
-    
+    }  
     
     
 
@@ -85,40 +82,119 @@ export class OwlSalesDashboard extends Component {
     }
 
     // monthly sales
-    async getMonthlySales(){
-        let domain = [['state', 'in', ['quotation_sent', 'quotation', 'sales_order', 'done']]]; // Changed state values to match your custom model
-        if (this.state.period > 0){
-            domain.push(['date', '>', this.state.current_date]); // Changed field name to match your custom model
-        }
-    
-        const data = await this.orm.readGroup("liquor_store.sales.order", domain, ['date', 'state', 'total_amount'], ['date', 'state'], { orderby: "date", lazy: false }); // Changed model name to match your custom model
+    async getMonthlySales() {
+        const domain = [['selling_date', '>=', this.state.current_date]]; // Filter by selling_date
+        const data = await this.orm.readGroup(
+            "liquor_store.sales.analysis",
+            domain,
+            ['selling_date', 'total_sales_amount', 'total_profit'],
+            ['selling_date'],
+            { orderby: "selling_date", lazy: false }
+        );
         console.log("monthly sales", data);
     
-        const labels = [...new Set(data.map(d => d.date))];
-        const quotations = data.filter(d => ['quotation', 'quotation_sent'].includes(d.state));
-        const orders = data.filter(d => ['sales_order', 'done'].includes(d.state));
+        const labels = [...new Set(data.map(d => d.selling_date))];
+        const totalSales = data.map(d => d.total_sales_amount);
+        const totalProfits = data.map(d => d.total_profit);
     
         this.state.monthlySales = {
             data: {
                 labels: labels,
                 datasets: [
                     {
-                        label: 'Quotations',
-                        data: labels.map(l => quotations.filter(q => l === q.date).map(j => j.total_amount).reduce((a, c) => a + c, 0)),
-                        hoverOffset: 4,
-                        backgroundColor: "red",
-                    },
-                    {
-                        label: 'Orders',
-                        data: labels.map(l => orders.filter(q => l === q.date).map(j => j.total_amount).reduce((a, c) => a + c, 0)),
+                        label: 'Total Sales Amount',
+                        data: totalSales,
                         hoverOffset: 4,
                         backgroundColor: "green",
+                    },
+                    {
+                        label: 'Total Profit',
+                        data: totalProfits,
+                        hoverOffset: 4,
+                        backgroundColor: "orange",
                     }
                 ]
             },
             domain,
-            label_field: 'date',
+            label_field: 'selling_date',
         };
+    }
+   
+    // monthly sales
+    // async getMonthlySales(){
+    //     let domain = [['state', 'in', ['quotation_sent', 'quotation', 'sales_order', 'done']]]; // Changed state values to match your custom model
+    //     if (this.state.period > 0){
+    //         domain.push(['date', '>', this.state.current_date]); // Changed field name to match your custom model
+    //     }
+    
+    //     const data = await this.orm.readGroup("liquor_store.sales.order", domain, ['date', 'state', 'total_amount'], ['date', 'state'], { orderby: "date", lazy: false }); // Changed model name to match your custom model
+    //     console.log("monthly sales", data);
+    
+    //     const labels = [...new Set(data.map(d => d.date))];
+    //     const quotations = data.filter(d => ['quotation', 'quotation_sent'].includes(d.state));
+    //     const orders = data.filter(d => ['sales_order', 'done'].includes(d.state));
+    
+    //     this.state.monthlySales = {
+    //         data: {
+    //             labels: labels,
+    //             datasets: [
+    //                 {
+    //                     label: 'Quotations',
+    //                     data: labels.map(l => quotations.filter(q => l === q.date).map(j => j.total_amount).reduce((a, c) => a + c, 0)),
+    //                     hoverOffset: 4,
+    //                     backgroundColor: "red",
+    //                 },
+    //                 {
+    //                     label: 'Orders',
+    //                     data: labels.map(l => orders.filter(q => l === q.date).map(j => j.total_amount).reduce((a, c) => a + c, 0)),
+    //                     hoverOffset: 4,
+    //                     backgroundColor: "green",
+    //                 }
+    //             ]
+    //         },
+    //         domain,
+    //         label_field: 'date',
+    //     };
+    // }
+    
+
+    async getTotalProfitPerBrand() {
+        let domain = [];
+        if (this.state.period > 0) {
+            domain.push(['selling_date', '>=', this.state.current_date]);
+        }
+    
+        const data = await this.orm.readGroup("liquor_store.sales.analysis", domain, ['brand_id', 'total_profit'], ['brand_id'], { lazy: false });
+        console.log("total profit per brand", data);
+    
+        const brandProfits = data.map(entry => ({
+            brand_id: entry.brand_id[0],
+            total_profit: entry.total_profit
+        }));
+    
+        // Fetch brand names corresponding to IDs
+        const brandNames = await Promise.all(brandProfits.map(async (entry) => {
+            const brand = await this.orm.searchRead("liquor_store.brand", [['id', '=', entry.brand_id]], ['name']);
+            return brand[0].name;
+        }));
+    
+        const totalProfitsPerBrand = {
+            data: {
+                labels: brandNames,
+                datasets: [
+                    {
+                        label: 'Total Profit',
+                        data: brandProfits.map(entry => entry.total_profit),
+                        hoverOffset: 4,
+                        backgroundColor: "purple",
+                    }
+                ]
+            },
+            domain,
+            label_field: 'name',
+        };
+    
+        this.state.totalProfitPerBrand = totalProfitsPerBrand;
     }
     
 
@@ -194,6 +270,7 @@ export class OwlSalesDashboard extends Component {
             this.getDates()
             await this.getQuotations()
             await this.getOrders()
+            await this.getTotalProfitPerBrand()
 
             await this.getTopProducts()
             await this.getTopSalesPeople()
@@ -211,6 +288,7 @@ export class OwlSalesDashboard extends Component {
         await this.getOrders()
 
         await this.getTopProducts()
+        await this.getTotalProfitPerBrand()
         await this.getTopSalesPeople()
         await this.getMonthlySales()
         await this.getPartnerOrders()

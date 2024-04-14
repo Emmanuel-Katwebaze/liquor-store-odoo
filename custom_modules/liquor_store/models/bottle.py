@@ -9,11 +9,11 @@ class Bottle(models.Model):
     
     brand = fields.Many2one('liquor_store.brand', 'Brand', required=True, tracking=True)
     barcode_number = fields.Char('Barcode Number', tracking=True, required=True)
-    size = fields.Many2one('liquor_store.bottle_size','Select Capacity (mls)')
+    size = fields.Many2one('liquor_store.bottle_size','Select Capacity (mls)', required=True,)
 
 
     capacity = fields.Integer(string='Capacity (mls)', compute="_compute_remaining_capacity", store=True)
-    purchase_date = fields.Date('Purchase Date', default=fields.Date.today())
+    purchase_date = fields.Date('Purchase Date', default=fields.Date.today(), required=True)
     # selling_date = fields.Date('Selling Date', compute='_compute_selling_date', store=True)
     selling_date = fields.Date('Selling Date')
     purchase_cost = fields.Integer('Purchase Cost', required=True)
@@ -23,9 +23,24 @@ class Bottle(models.Model):
                 
     @api.model
     def create(self, vals):
+        if 'size' not in vals or not vals['size']:
+            raise UserError("Size is required.")
+        if 'purchase_cost' in vals and vals['purchase_cost'] <= 0:
+            raise UserError("Purchase cost must be greater than zero.")
+        if 'selling_price' in vals and vals['selling_price'] <= 0:
+            raise UserError("Selling price must be greater than zero.")
         bottle = super(Bottle, self).create(vals)
         bottle.brand.quantity += 1
         return bottle
+    
+    def write(self, vals):
+        if 'size' in vals and not vals['size']:
+            raise UserError("Size is required.")
+        if 'purchase_cost' in vals and vals['purchase_cost'] <= 0:
+            raise UserError("Purchase cost must be greater than zero.")
+        if 'selling_price' in vals and vals['selling_price'] <= 0:
+            raise UserError("Selling price must be greater than zero.")
+        return super(Bottle, self).write(vals)
     
     @api.depends('status')
     def _compute_selling_date(self):
@@ -65,4 +80,8 @@ class Bottle(models.Model):
             name = "%s - %s" % (bottle.brand.name, bottle.barcode_number)
             result.append((bottle.id, name))
         return result
+    
+    _sql_constraints = [
+        ('barcode_number_unique', 'UNIQUE (barcode_number)', 'Barcode number must be unique.'),
+    ]
         
