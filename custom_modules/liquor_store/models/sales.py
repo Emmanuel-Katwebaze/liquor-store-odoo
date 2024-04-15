@@ -54,9 +54,9 @@ class SalesOrder(models.Model):
         
     def action_return(self):
         self.write({'state': 'quotation'})
-        # self.order_line_ids.mapped('bottle_id').write({'status': 'available'})
         returned_bottles = self.order_line_ids.mapped('bottle_id')
         returned_bottles.filtered(lambda bottle: bottle.status == 'sold').write({'selling_date': False})  # Clear selling date of returned bottles
+        self.order_line_ids.mapped('bottle_id').write({'status': 'available'})
     
     def print_sales_order_report(self):
         report_action = self.env['ir.actions.report'].search([('report_name', '=', 'liquor_store.report_sales_orders')], limit=1)
