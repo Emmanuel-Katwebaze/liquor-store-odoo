@@ -81,6 +81,13 @@ class Bottle(models.Model):
             result.append((bottle.id, name))
         return result
     
+    @api.model
+    def name_search(self, name='', args=None, operator='ilike', limit=100, name_get_uid=None):
+        args = args or []
+        domain = ['|', ('barcode_number', operator, name), ('brand.name', operator, name)]
+        bottles = self.search(domain + args, limit=limit)
+        return bottles.name_get()
+    
     _sql_constraints = [
         ('barcode_number_unique', 'UNIQUE (barcode_number)', 'Barcode number must be unique.'),
     ]
