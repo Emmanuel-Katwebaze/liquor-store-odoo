@@ -6,6 +6,11 @@ class SalesOrder(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'name_seq'
     
+    DISCOUNT_SELECTION = [
+        ('0', '0%'), ('10', '10%'), ('20', '20%'), ('30', '30%'), ('40', '40%'),
+        ('50', '50%'), ('60', '60%'), ('70', '70%'), ('80', '80%'), ('90', '90%'), ('100', '100%')
+    ]
+        
     STATE_SELECTION = [
         ('quotation', 'Quotation'),
         ('quotation_sent', 'Quotation Sent'),
@@ -13,13 +18,18 @@ class SalesOrder(models.Model):
         ('done', 'Done'),
     ]
 
+
     name_seq = fields.Char(string='Order Reference', required=True, readonly=True, copy=False, index=True, default=lambda self: _('New'))
-    
     customer_id = fields.Many2one('liquor_store.customer', string='Customer', required=True)
     order_line_ids = fields.One2many('liquor_store.sales.order.line', 'order_id', string='Order Lines')
+    payment_ids = fields.One2many('liquor_store.payment.details', 'order_id', string='Payments')
     total_amount = fields.Float(string='Total Sale Amount', compute='_compute_total_amount', store=True)
+    total_paid = fields.Float(string='Total Paid Amount', compute='_compute_total_paid', store=True)
+    remaining_amount = fields.Float(string='Change', compute='_compute_remaining_amount', store=True)
     state = fields.Selection(STATE_SELECTION, string='Status', default='quotation', readonly=True)
     date = fields.Date('Date Sold', default=fields.Date.today())
+    discount = fields.Selection(DISCOUNT_SELECTION, string='Discount', default='0')
+    # payment_type = fields.Selection(PAYMENT_TYPE_SELECTION, string='Payment Type')
     
     def unlink(self):
         for order in self:
@@ -29,10 +39,23 @@ class SalesOrder(models.Model):
                 raise exceptions.UserError("You cannot delete a sales order with associated sales order lines.")
         return super(SalesOrder, self).unlink()
 
-    @api.depends('order_line_ids.subtotal')
+    @api.depends('order_line_ids.subtotal', 'discount')
     def _compute_total_amount(self):
         for order in self:
-            order.total_amount = sum(order.order_line_ids.mapped('subtotal'))
+            total = sum(order.order_line_ids.mapped('subtotal'))
+            discount_amount = total * (float(order.discount) / 100)  # Convert discount to float
+            order.total_amount = total - discount_amount
+            
+    @api.depends('payment_ids.amount')
+    def _compute_total_paid(self):
+        for order in self:
+            order.total_paid = sum(order.payment_ids.mapped('amount'))
+    
+    @api.depends('total_amount', 'total_paid')
+    def _compute_remaining_amount(self):
+        for order in self:
+            #order.remaining_amount = order.total_amount - order.total_paid
+            order.remaining_amount = order.total_paid - order.total_amount
             
     @api.model
     def create(self, vals):
@@ -48,9 +71,13 @@ class SalesOrder(models.Model):
 
     def action_validate(self):
         self.write({'state': 'done'})
-        self.order_line_ids.mapped('bottle_id').write({'status': 'sold'})
-        sold_bottles = self.order_line_ids.filtered(lambda line: line.bottle_id.status == 'sold').mapped('bottle_id')
-        sold_bottles.write({'selling_date': self.date})  # Update selling date of sold bottles
+        for order in self:
+            order.order_line_ids.mapped('bottle_id').write({'status': 'sold'})
+            sold_bottles = order.order_line_ids.filtered(lambda line: line.bottle_id.status == 'sold').mapped('bottle_id')
+            sold_bottles.write({'selling_date': order.date})  # Update selling date of sold bottles
+            for line in order.order_line_ids:
+                line.bottle_id.write({'selling_price': line.subtotal})  # Update selling price of the bottle to subtotal
+
         
     def action_return(self):
         self.write({'state': 'quotation'})
@@ -79,10 +106,12 @@ class SalesOrderLine(models.Model):
     selling_date = fields.Date(related='order_id.date', string='Selling Date', store=True)
 
 
-    @api.depends('quantity', 'unit_price')
+    @api.depends('quantity', 'unit_price', 'order_id.discount')
     def _compute_subtotal(self):
         for line in self:
-            line.subtotal = line.quantity * line.unit_price
+            discount_amount = line.unit_price * (float(line.order_id.discount) / 100)
+            line.subtotal = (line.unit_price - discount_amount) * line.quantity
+
             
     @api.depends('bottle_id')
     def _compute_unit_price(self):
@@ -107,6 +136,21 @@ class SalesOrderLine(models.Model):
                     raise exceptions.ValidationError(
                         "You cannot add the same bottle to the order multiple times."
                     )
+                    
+class PaymentDetails(models.Model):
+    _name = 'liquor_store.payment.details'
+    _description = 'Payment Details'
+    
+    PAYMENT_TYPE_SELECTION = [
+        ('bank', 'Bank'),
+        ('cash', 'Cash'),
+        ('mobile_money', 'Mobile Money')
+    ]
+
+    order_id = fields.Many2one('liquor_store.sales.order', string='Sales Order')
+    # payment_type = fields.Selection(related='order_id.payment_type', string='Payment Type')
+    payment_type = fields.Selection(PAYMENT_TYPE_SELECTION, string='Payment Type')
+    amount = fields.Float(string='Amount')
 
 class Invoice(models.Model):
     _name = 'liquor_store.invoice'
@@ -135,14 +179,14 @@ class Invoice(models.Model):
     def action_confirm_invoice(self):
         self.write({'state': 'posted'})
 
-    def action_create_payment_popup(self):
-        return {
-            'name': 'Create Payment',
-            'type': 'ir.actions.act_window',
-            'res_model': 'liquor_store.payment',
-            'view_mode': 'form',
-            'target': 'new',
-        }
+    # def action_create_payment_popup(self):
+    #     return {
+    #         'name': 'Create Payment',
+    #         'type': 'ir.actions.act_window',
+    #         'res_model': 'liquor_store.payment',
+    #         'view_mode': 'form',
+    #         'target': 'new',
+    #     }
 
 class InvoiceLine(models.Model):
     _name = 'liquor_store.invoice_line'

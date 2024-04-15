@@ -12,5 +12,6 @@ access_liquor_store_sales_order_line,access.liquor_store.sales.order.line,model_
 access_liquor_store_invoice,access.liquor_store.invoice,model_liquor_store_invoice,base.group_user,1,1,1,1
 access_liquor_store_invoice_line,access.liquor_store.invoice_line,model_liquor_store_invoice_line,base.group_user,1,1,1,1
 access_liquor_store_payment,access.liquor_store.payment,model_liquor_store_payment,base.group_user,1,1,1,1
+access_liquor_store_payment_details,access.liquor_store.payment.details,model_liquor_store_payment_details,base.group_user,1,1,1,1
 access_liquor_store_bottle_size,access.liquor_store.bottle_size,model_liquor_store_bottle_size,base.group_user,1,1,1,1
 access_liquor_store_bottle_variant,access.liquor_store.bottle_variant,model_liquor_store_bottle_variant,base.group_user,1,1,1,1

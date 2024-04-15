@@ -26,10 +26,20 @@
                                 <field name="bottle_id" domain="[('status', '=', 'available')]"/>
                                 <field name="brand"/>
                                 <field name="unit_price"/>
+                                <field name="subtotal"/>
                             </tree>
                         </field>
                         <field name="total_amount" readonly="1" />
-                        <!-- <field name="state" widget="statusbar" /> -->
+                        <field name="discount" />
+                        <!-- New fields for payment details -->
+                        <field name="payment_ids">
+                            <tree string="Payment Details" editable="bottom">
+                                <field name="payment_type"/>
+                                <field name="amount"/>
+                            </tree>
+                        </field>
+                        <field name="total_paid" readonly="1" />
+                        <field name="remaining_amount" readonly="1" />
                     </group>
                 </sheet>
                 <div class="oe_chatter">
@@ -68,8 +78,6 @@
         <field name="binding_type">report</field>
     </record>
     </data>
-
-
 
     <record id="liquor_store_sales_order_action" model="ir.actions.act_window">
         <field name="name">Sales Order</field>

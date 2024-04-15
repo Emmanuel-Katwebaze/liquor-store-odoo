@@ -7,7 +7,7 @@ class Brand(models.Model):
     
     name = fields.Char('Brand Name', required=True)
     description = fields.Text('Description', required=True)
-    quantity = fields.Integer('Quantity', compute='_compute_quantity')
+    quantity = fields.Integer('In Stock', compute='_compute_quantity')
     bottle_ids = fields.One2many('liquor_store.bottle', 'brand', string='Bottles')
     sold_bottle_count = fields.Integer('Sold Bottle Count', compute='_compute_sold_bottle_count')
     total_profit = fields.Float('Total Profit', compute='_compute_total_profit')
