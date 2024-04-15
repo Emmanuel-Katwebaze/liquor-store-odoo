@@ -42,27 +42,27 @@
     /> -->
 
     <!-- Purchase Menu -->
-    <menuitem
+    <!-- <menuitem
         id="liquor_store_purchase_menu"
         name="Purchase"
         parent="liquor_store_menu_root"
         sequence="2"
-    />
+    /> -->
     <!-- Supplier -->
-    <menuitem
+    <!-- <menuitem
         id="liquor_store_supplier_menu_action"
         action="liquor_store_supplier_action"
         parent="liquor_store_purchase_menu"
         sequence="1"
-    />
+    /> -->
 
     <!-- Supplier Transactions -->
-    <menuitem
+    <!-- <menuitem
         id="liquor_store_supplier_transaction_menu_action"
         action="liquor_store_supplier_transaction_action"
         parent="liquor_store_purchase_menu"
         sequence="2"
-    />
+    /> -->
 
     <!-- Sales Menu -->
     <menuitem
@@ -93,12 +93,12 @@
         sequence="3"
     /> -->
     <!-- Sales Order -->
-    <menuitem
+    <!-- <menuitem
         id="liquor_store_sales_order_reporting_menu_action"
         action="liquor_store_sales_order_reporting_action"
         parent="liquor_store_sales_menu"
         sequence="3"
-    />
+    /> -->
     <!-- Sales Order -->
     <menuitem
         id="liquor_store_sales_order_menu_action"

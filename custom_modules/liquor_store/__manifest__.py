@@ -33,6 +33,7 @@
             'liquor_store/static/src/components/**/*.js',
             'liquor_store/static/src/components/**/*.xml',
             'liquor_store/static/src/components/**/*.scss',
+            'liquor_store/static/src/css/*.css',
         ],
     },
 }
