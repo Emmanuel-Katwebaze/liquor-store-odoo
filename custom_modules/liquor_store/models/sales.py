@@ -74,6 +74,7 @@ class SalesOrderLine(models.Model):
     bottle_id = fields.Many2one('liquor_store.bottle', string='Bottle', required=True)
     quantity = fields.Integer(string='Quantity', default=1)
     unit_price = fields.Float(string='Unit Price', compute='_compute_unit_price', store=True)
+    brand = fields.Char(string='Brand', compute='_compute_brand', store=False)
     subtotal = fields.Float(string='Subtotal', compute='_compute_subtotal', store=True)
     selling_date = fields.Date(related='order_id.date', string='Selling Date', store=True)
 
@@ -87,6 +88,11 @@ class SalesOrderLine(models.Model):
     def _compute_unit_price(self):
         for line in self:
             line.unit_price = line.bottle_id.selling_price
+            
+    @api.depends('bottle_id')
+    def _compute_brand(self):
+        for line in self:
+            line.brand = line.bottle_id.brand.name
             
     @api.constrains('bottle_id', 'order_id')
     def _check_unique_bottle_id(self):

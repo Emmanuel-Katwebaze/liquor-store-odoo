@@ -3,6 +3,7 @@ from odoo import fields, models, api
 class Brand(models.Model):
     _name = 'liquor_store.brand'
     _description = 'Brand'
+    _rec_name = 'name'
     
     name = fields.Char('Brand Name', required=True)
     description = fields.Text('Description', required=True)

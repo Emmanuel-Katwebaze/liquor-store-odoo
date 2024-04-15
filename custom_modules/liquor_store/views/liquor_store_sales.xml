@@ -24,6 +24,7 @@
                         <field name="order_line_ids">
                             <tree string="Order Lines" editable="bottom">
                                 <field name="bottle_id" domain="[('status', '=', 'available')]"/>
+                                <field name="brand"/>
                                 <field name="unit_price"/>
                             </tree>
                         </field>
