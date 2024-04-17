@@ -151,6 +151,23 @@ class PaymentDetails(models.Model):
     # payment_type = fields.Selection(related='order_id.payment_type', string='Payment Type')
     payment_type = fields.Selection(PAYMENT_TYPE_SELECTION, string='Payment Type')
     amount = fields.Float(string='Amount')
+    date = fields.Date(string='Selling Date', compute='_compute_selling_date', store=True)
+    # date = fields.Date(related='order_id.date', string='Selling Date', store=True)
+
+    @api.depends('order_id.date')
+    def _compute_selling_date(self):
+        for payment in self:
+            payment.date = payment.order_id.date 
+            
+    @api.depends('order_id.state', 'amount')
+    def _compute_done_state_amount(self):
+        for payment in self:
+            if payment.order_id.state == 'done':
+                payment.done_state_amount = payment.amount
+            else:
+                payment.done_state_amount = 0.0
+
+    done_state_amount = fields.Float(string='Amount in Done State', compute='_compute_done_state_amount', store=True)
 
 class Invoice(models.Model):
     _name = 'liquor_store.invoice'

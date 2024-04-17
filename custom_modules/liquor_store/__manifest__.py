@@ -19,6 +19,7 @@
         'views/liquor_store_sales.xml',
         'views/liquor_store_sales_order_reporting.xml',
         'views/liquor_store_sales_analysis.xml',
+        'views/liquor_store_sales_payment_type_analysis.xml',
         'views/liquor_store_supplier_transaction.xml',
         'views/sales_dashboard.xml',
         'views/liquor_store_menus.xml',
@@ -33,7 +34,7 @@
             'liquor_store/static/src/components/**/*.js',
             'liquor_store/static/src/components/**/*.xml',
             'liquor_store/static/src/components/**/*.scss',
-            'liquor_store/static/src/css/*.css',
+            'liquor_store/static/src/**/*',
         ],
     },
 }

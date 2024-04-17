@@ -71,12 +71,19 @@
         parent="liquor_store_menu_root"
         sequence="3"
     />
+    <!-- Sales Order -->
+    <menuitem
+        id="liquor_store_sales_order_menu_action"
+        action="liquor_store_sales_order_action"
+        parent="liquor_store_sales_menu"
+        sequence="1"
+    />
     <!-- Customer -->
     <menuitem
         id="liquor_store_customer_menu_action"
         action="liquor_store_customer_action"
         parent="liquor_store_sales_menu"
-        sequence="1"
+        sequence="2"
     />
     <!-- RFQ -->
     <!-- <menuitem
@@ -99,13 +106,14 @@
         parent="liquor_store_sales_menu"
         sequence="3"
     /> -->
-    <!-- Sales Order -->
+    <!-- Payment Type Reporting -->
     <menuitem
-        id="liquor_store_sales_order_menu_action"
-        action="liquor_store_sales_order_action"
+        id="liquor_store_sales_payment_type_menu_action"
+        action="action_sales_analysis_payment_type_report"
         parent="liquor_store_sales_menu"
-        sequence="4"
+        sequence="3"
     />
+    
     <!-- Sales Analysis Report Menu Item -->
     <menuitem id="menu_sales_analysis_report_action" name="Sales Analysis Report" parent="liquor_store_sales_menu" action="action_sales_analysis_report"/>
 
