@@ -35,8 +35,8 @@ class SalesOrder(models.Model):
         for order in self:
             if order.state == 'done':
                 raise exceptions.UserError("You cannot delete a sales order that is in the 'Done' state.")
-            if order.order_line_ids:
-                raise exceptions.UserError("You cannot delete a sales order with associated sales order lines.")
+            if order.order_line_ids or order.payment_ids:
+                raise exceptions.UserError("You cannot delete a sales order with associated sales order lines or payment details.")
         return super(SalesOrder, self).unlink()
 
     @api.depends('order_line_ids.subtotal', 'discount')
