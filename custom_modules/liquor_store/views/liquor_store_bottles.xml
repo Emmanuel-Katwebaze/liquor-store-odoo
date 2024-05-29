@@ -9,7 +9,7 @@
                 <field name="brand"/>
                 <field name="barcode_number"/>
                 <field name="capacity"/>
-                <field name="variants" widget="many2many_tags" />
+                <!-- <field name="variants" widget="many2many_tags" /> -->
                 <field name="purchase_date"/>
                 <field name="selling_date"/>
                 <field name="purchase_cost"/>
@@ -80,8 +80,8 @@
                         <field name="purchase_date" readonly="status == 'sold'"/>
                         <field name="purchase_cost" readonly="status == 'sold'"/>
                         <field name="selling_price" readonly="status == 'sold'"/>
-                        <field name="status" readonly="status == 'sold'"/>  
-                        <field name="variants">
+                        <field name="status" readonly="1"/>  
+                        <!-- <field name="variants">
                             <tree string="Variants" editable="bottom">
                                 <field name="name"/>
                             </tree>
@@ -91,7 +91,7 @@
                                     <field name="name"/>
                                 </group>
                             </form>
-                        </field>                            
+                        </field>                             -->
                     </group>
                 </sheet>
                 <div class="oe_chatter">
